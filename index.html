@@ -3,238 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoreo Coyote - Realtime</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #1a252f;
-            color: #ecf0f1;
-            padding: 15px;
-        }
-        header {
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 2px solid #2c3e50;
-            margin-bottom: 20px;
-        }
-        header h1 {
-            font-size: 20px;
-            color: #ffffff;
-            letter-spacing: 1px;
-        }
-        header p {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-        .card-global {
-            background-color: #16a085;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
-        .card-global h2 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #e8f8f5;
-            margin-bottom: 5px;
-        }
-        .card-global .monto {
-            font-size: 32px;
-            font-weight: bold;
-            color: #ffffff;
-        }
-        .grid-totales {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        .card-mini {
-            background-color: #2c3e50;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-        }
-        .card-mini h3 {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #bdc3c7;
-            margin-bottom: 4px;
-        }
-        .card-mini .monto-mini {
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .color-in { color: #2ecc71; }
-        .color-out { color: #e74c3c; }
+    <title>🎰 Monitor Coyote Online</title>
+    
+    <!-- Librerías de Firebase con inyección directa segura -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
 
-        .titulo-seccion {
-            font-size: 14px;
-            color: #f1c40f;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
-        }
-        .lista-maquinas {
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            margin: 0;
+            padding: 15px;
+            min-height: 100vh;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 8px;
         }
-        .item-maquina {
-            background-color: #34495e;
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a252f;
+            padding: 12px 20px;
             border-radius: 8px;
-            padding: 12px 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            gap: 20px;
+        }
+        .header img {
+            max-height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+        .header-text { text-align: left; }
+        .header h1 { margin: 0; font-size: 22px; color: #f1c40f; letter-spacing: 0.5px; }
+        .header p { margin: 2px 0 0 0; color: #bdc3c7; font-size: 13px; }
+        
+        .resumen-global {
+            background-color: #16a085;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .card-global { text-align: center; }
+        .card-global h3 { margin: 0; font-size: 12px; text-transform: uppercase; color: #e8f8f5; opacity: 0.9; }
+        .card-global p { margin: 4px 0 0 0; font-size: 22px; font-weight: bold; }
+
+        .grid-maquinas {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            flex-grow: 1;
+        }
+        
+        @media (max-width: 1024px) {
+            .grid-maquinas { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .card-maquina {
+            background-color: #34495e;
+            border: 2px solid #2c3e50;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            min-height: 90px;
+        }
+        
+        .fila-superior {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 8px;
         }
-        .info-izq {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #7f8c8d;
-        }
-        .status-dot.online { background-color: #2ecc71; }
-        .status-dot.offline { background-color: #e74c3c; }
+        .fila-superior h2 { margin: 0; font-size: 16px; color: #ffffff; }
         
-        .nombre-maq {
+        .status {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 10px;
             font-weight: bold;
-            font-size: 15px;
+            border-radius: 4px;
         }
-        .valores-der {
-            text-align: right;
-        }
-        .val-in {
-            font-size: 14px;
-            font-weight: bold;
-            color: #2ecc71;
-        }
-        .val-out {
-            font-size: 12px;
-            color: #e74c3c;
-            margin-top: 2px;
-        }
+        .status.online { background-color: #2ecc71; color: #145a32; }
+        .status.offline { background-color: #e74c3c; color: #641e16; }
+
+        .info-der { text-align: right; }
+        .monto-in { color: #2ecc71; font-size: 18px; font-weight: bold; margin: 0; }
+        .ganancia-pct { color: #bdc3c7; font-size: 12px; margin: 4px 0 0 0; font-weight: bold; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🎰 COYOTE AUDITORÍA</h1>
-        <p>Actualizado: <span id="txt-reloj">Cargando...</span></p>
-    </header>
 
-    <!-- Panel de Recaudación Neta -->
-    <div class="card-global">
-        <h2>Recaudación Total (Neto)</h2>
-        <div class="monto" id="neto-global">Gs. 0</div>
-    </div>
-
-    <!-- Contenedor de Ingresos y Egresos Globales -->
-    <div class="grid-totales">
-        <div class="card-mini">
-            <h3>Total Ingresos (IN)</h3>
-            <div class="monto-mini color-in" id="total-in">Gs. 0</div>
-        </div>
-        <div class="card-mini">
-            <h3>Total Premios (OUT)</h3>
-            <div class="monto-mini color-out" id="total-out">Gs. 0</div>
+    <div class="header">
+        <img src="logo.png" alt="Logo Coyote" onerror="this.style.display='none';">
+        <div class="header-text">
+            <h1>SISTEMA DE AUDITORÍA CONTABLE WEB</h1>
+            <p>Monitoreo de Sala en Tiempo Real</p>
+            <p id="txt-reloj" style="color: #ecf0f1; font-weight: bold; margin-top: 4px; font-size: 12px;">Conectando a la base de datos...</p>
         </div>
     </div>
 
-    <!-- Sección de Detalle por Máquina -->
-    <h2 class="titulo-seccion">Control Individual de Sala</h2>
-    <div class="lista-maquinas" id="contenedor-maquinas">
-        <!-- Las 10 máquinas se construirán automáticamente desde Firebase aquí -->
-        <p style="text-align: center; color: #7f8c8d; padding: 20px;">Esperando datos de sala...</p>
+    <div class="resumen-global">
+        <div class="card-global">
+            <h3>Balance Neto Global</h3>
+            <p id="neto-global">Gs. 0</p>
+        </div>
+        <div class="card-global">
+            <h3>Total IN (Entradas)</h3>
+            <p id="total-in">Gs. 0</p>
+        </div>
+        <div class="card-global">
+            <h3>Total OUT (Premios)</h3>
+            <p id="total-out">Gs. 0</p>
+        </div>
     </div>
 
-    <!-- Carga de las librerías oficiales de Firebase (Versión de Compatibilidad) -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
+    <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // ============================================================================
-        // CONFIGURACIÓN DE TU PROYECTO DE FIREBASE
-        // ============================================================================
-        // Debes reemplazar esta URL por la de tu base de datos de la consola Firebase
-        const firebaseConfig = {
-            databaseURL: "https://console.firebase.google.com/project/coyoteauditoria/database/coyoteauditoria-default-rtdb/data/~2F"
-        };
-        
-        // Inicializa la conexión web con Firebase
-        firebase.initializeApp(firebaseConfig);
-        const dbRef = firebase.database().reference('/sala_monitoreo');
+        // Ensamblado anti-recortes para asegurar que conecte perfectamente
+        var urlDb = "https://" + "coyoteauditoria-default-rtdb" + ".firebaseio.com";
 
-        // Función para dar formato de dinero en Guaraníes (Gs. 1.500.000)
-        function formatearMoneda(valor) {
-            if (valor === undefined || valor === null) return "Gs. 0";
-            return "Gs. " + Number(valor).toLocaleString('de-DE');
+        var firebaseConfig = {
+            apiKey: "AIzaSyCB8qNEU0ex8065ZRFMxRF_fUkG2NyWpZ4",
+            authDomain: "://firebaseapp.com",
+            databaseURL: urlDb,
+            projectId: "coyoteauditoria",
+            storageBucket: "://appspot.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+
+        function formatearGs(monto) {
+            return "Gs. " + Number(monto).toLocaleString('de-DE');
         }
-        // Escucha los cambios en la base de datos en tiempo real
-        dbRef.on('value', (snapshot) => {
-            const data = snapshot.val();
+
+        var salaRef = db.ref('sala_monitoreo');
+        salaRef.on('value', function(snapshot) {
+            var data = snapshot.val();
             if (!data) return;
 
-            // 1. Actualizar los contenedores globales principales
-            document.getElementById('txt-reloj').innerText = data.ultima_actualizacion || '---';
-            document.getElementById('neto-global').innerText = formatearMoneda(data.neto_global);
-            document.getElementById('total-in').innerText = formatearMoneda(data.total_in_global);
-            document.getElementById('total-out').innerText = formatearMoneda(data.total_out_global);
+            document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
+            document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
+            document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
+            document.getElementById('txt-reloj').innerText = "Última Sincronización: " + (data.ultima_actualizacion || '--/--/---- --:--:--');
 
-            // 2. Limpiar el contenedor para reconstruir la lista de las máquinas de la sala
-            const contenedor = document.getElementById('contenedor-maquinas');
-            contenedor.innerHTML = '';
+            var contenedor = document.getElementById('contenedor-maquinas');
+            contenedor.innerHTML = "";
 
             if (data.maquinas) {
-                // Ordenar las máquinas numéricamente por su nombre oficial
-                const maquinasOrdenadas = Object.keys(data.maquinas).sort((a, b) => {
-                    const numA = parseInt(a.replace('maq_', '')) || 0;
-                    const numB = parseInt(b.replace('maq_', '')) || 0;
-                    return numA - numB;
+                var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
+                    return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                 });
 
-                maquinasOrdenadas.forEach((key) => {
-                    const m = data.maquinas[key];
-                    const nombreOficial = key.replace('maq_', '');
+                listaMaquinas.forEach(function(item) {
+                    var key = item[0];
+                    var maq = item[1];
+                    var numOficial = key.replace("maq_", "");
                     
-                    // Determinar si la placa está ONLINE según el indicador de Tkinter de la PC
-                    const esOnline = m.status === '[ON]';
-                    const claseStatus = esOnline ? 'online' : 'offline';
+                    var pctTexto = "Ganancia: 100.0%";
+                    var pctColor = "#bdc3c7";
+                    if (maq.in > 0) {
+                        var pct = ((maq.in - maq.out) / maq.in) * 100;
+                        pctTexto = "Ganancia: " + pct.toFixed(1) + "%";
+                        if (pct < 0) pctColor = "#e74c3c";
+                    }
 
-                    // Crear el bloque visual para cada máquina
-                    const itemHtml = `
-                        <div class="item-maquina">
-                            <div class="info-izq">
-                                <div class="status-dot ${claseStatus}"></div>
-                                <span class="nombre-maq">Máquina ${nombreOficial}</span>
-                            </div>
-                            <div class="valores-der">
-                                <div class="val-in">IN: ${formatearMoneda(m.in)}</div>
-                                <div class="val-out">OUT: ${formatearMoneda(m.out)}</div>
-                            </div>
+                    var statusClass = (maq.status === "[ON]") ? "status online" : "status offline";
+                    var statusTexto = (maq.status === "[ON]") ? "ONLINE" : "OFFLINE";
+
+                    var tarjeta = document.createElement('div');
+                    tarjeta.className = "card-maquina";
+                    tarjeta.innerHTML = `
+                        <div class="fila-superior">
+                            <h2>Máq. ${numOficial}</h2>
+                            <span class="${statusClass}">${statusTexto}</span>
+                        </div>
+                        <div class="info-der">
+                            <p class="monto-in">${formatearGs(maq.in)}</p>
+                            <p class="ganancia-pct" style="color: ${pctColor}">${pctTexto}</p>
                         </div>
                     `;
-                    contenedor.innerHTML += itemHtml;
+                    contenedor.appendChild(tarjeta);
                 });
-            } else {
-                contenedor.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 20px;">No se encontraron máquinas activas.</p>';
             }
-        }, (error) => {
-            console.error("Error leyendo datos de Firebase:", error);
         });
     </script>
 </body>
