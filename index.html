@@ -79,16 +79,14 @@
             <p id="total-in">Gs. 0</p>
         </div>
         <div class="card-total card-out">
-            <h3>Total OUT (Premios Pagados)</h3>
+            <h3>Total OUT (Premios)</h3>
             <p id="total-out">Gs. 0</p>
         </div>
     </div>
 
     <script>
-        // TRUCO DEFINITIVO EN BASE64: Protegemos la URL para que no pueda ser alterada por el chat
-        // Al ejecutarse en tu teléfono, descifrará la dirección oficial exacta de tu Realtime Database
-        var urlEncriptada = "aHR0cHM6Ly9jb3lvdGVhdWRpdG9yaWEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tLy5qc29u";
-        var urlApiRest = window.atob(urlEncriptada);
+        // Apuntamos directamente a la ruta exacta autorizada en las reglas de tu Firebase
+        var urlApiRest = "https://firebaseio.com";
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
@@ -99,12 +97,10 @@
                 var respuesta = await fetch(urlApiRest);
                 if (!respuesta.ok) return;
                 
-                var baseCompleta = await respuesta.json();
-                if (!baseCompleta || !baseCompleta.sala_monitoreo) return;
-                
-                var data = baseCompleta.sala_monitoreo;
+                var data = await respuesta.json();
+                if (!data) return;
 
-                // Inyección directa de las variables en los paneles informativos
+                // Al consultar la subcarpeta directa, las variables se inyectan sin intermediarios
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -114,7 +110,7 @@
             }
         }
 
-        // Consultar inmediatamente al abrir y luego actualizar de forma automática cada 2 segundos
+        // Consultar de forma inmediata y refrescar de manera automática cada 2 segundos
         actualizarTotalesSala();
         setInterval(actualizarTotalesSala, 2000);
     </script>
