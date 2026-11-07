@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎰 Monitor Coyote Online</title>
     
-    <!-- Librerías de Firebase con inyección directa segura -->
+    <!-- Librerías clásicas de Firebase con inyección segura -->
     <script src="https://gstatic.com"></script>
     <script src="https://gstatic.com"></script>
 
@@ -113,6 +113,7 @@
         </div>
     </div>
 
+    <!-- PANEL GENERAL DE RECAUDACIÓN -->
     <div class="resumen-global">
         <div class="card-global">
             <h3>Balance Neto Global</h3>
@@ -128,10 +129,11 @@
         </div>
     </div>
 
+    <!-- CONTENEDOR DE LAS 10 MÁQUINAS -->
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // Ensamblado anti-recortes para asegurar que conecte perfectamente
+        // Ensamblado anti-recortes de la URL de tu base de datos
         var urlDb = "https://" + "coyoteauditoria-default-rtdb" + ".firebaseio.com";
 
         var firebaseConfig = {
@@ -142,6 +144,7 @@
             storageBucket: "://appspot.com"
         };
 
+        // Inicializamos Firebase
         firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
@@ -149,11 +152,13 @@
             return "Gs. " + Number(monto).toLocaleString('de-DE');
         }
 
+        // Escuchamos los cambios en vivo
         var salaRef = db.ref('sala_monitoreo');
         salaRef.on('value', function(snapshot) {
             var data = snapshot.val();
             if (!data) return;
 
+            // Actualizar montos globales superiores
             document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
             document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
             document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -163,13 +168,14 @@
             contenedor.innerHTML = "";
 
             if (data.maquinas) {
+                // Ordenar las máquinas por número oficial de forma correcta
                 var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
                     return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                 });
 
                 listaMaquinas.forEach(function(item) {
-                    var key = item[0];
-                    var maq = item[1];
+                    var key = item[0];   // Clave real de la máquina (ej: "maq_09")
+                    var maq = item[1];   // Datos reales internos {in, out, status}
                     var numOficial = key.replace("maq_", "");
                     
                     var pctTexto = "Ganancia: 100.0%";
