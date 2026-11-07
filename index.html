@@ -34,7 +34,6 @@
         .header h1 { margin: 0; font-size: 24px; color: #f1c40f; letter-spacing: 0.5px; }
         .header p { margin: 4px 0 0 0; color: #bdc3c7; font-size: 14px; }
         
-        /* Contenedor grande de totales globales */
         .panel-totales {
             display: flex;
             flex-direction: column;
@@ -86,11 +85,10 @@
     </div>
 
     <script>
-        // Construcción manual de la URL sin que sufra recortes del chat
-        var protocol = "https://";
-        var project = "coyoteauditoria-default-rtdb";
-        var fileJson = "://";
-        var urlApiRest = protocol + project + fileJson;
+        // TRUCO DEFINITIVO EN BASE64: Protegemos la URL para que no pueda ser alterada por el chat
+        // Al ejecutarse en tu teléfono, descifrará la dirección oficial exacta de tu Realtime Database
+        var urlEncriptada = "aHR0cHM6Ly9jb3lvdGVhdWRpdG9yaWEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tLy5qc29u";
+        var urlApiRest = window.atob(urlEncriptada);
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
@@ -106,7 +104,7 @@
                 
                 var data = baseCompleta.sala_monitoreo;
 
-                // Inyección directa de las variables fijas en pantalla
+                // Inyección directa de las variables en los paneles informativos
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -116,7 +114,7 @@
             }
         }
 
-        // Consultar de inmediato al abrir la pantalla y luego actualizar automáticamente cada 2 segundos
+        // Consultar inmediatamente al abrir y luego actualizar de forma automática cada 2 segundos
         actualizarTotalesSala();
         setInterval(actualizarTotalesSala, 2000);
     </script>
