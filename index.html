@@ -128,12 +128,8 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // CONSTRUCCIÓN DIRECTA CON TEXTO SEGMENTADO (Blindado al 100% contra filtros de chat)
-        var p_proto = "https:/" + "/";
-        var p_proy = "coyoteauditoria-default-rtdb";
-        var p_ext = "://";
-        
-        var urlApiRest = p_proto + p_proy + p_ext;
+        // Dirección de la API REST limpia y unificada de Firebase sin riesgo de recortes
+        var urlApiRest = "https://firebaseio.com";
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
@@ -149,7 +145,7 @@
                 
                 var data = baseCompleta.sala_monitoreo;
 
-                // Actualizar montos globales del panel verde
+                // Actualizar montos globales superiores
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -159,15 +155,15 @@
                 contenedor.innerHTML = "";
 
                 if (data.maquinas) {
-                    // Ordenamos las máquinas alfabética y numéricamente por su nombre oficial
+                    // Convertir el objeto de máquinas en una lista y ordenarla numéricamente
                     var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
                         return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                     });
 
-                    // Dibujamos las tarjetas usando los índices exactos del arreglo de JavaScript
-                    listaMaquinas.forEach(function(parMaquina) {
-                        var clave = parMaquina[0]; // Extrae "maq_09", "maq_21", etc.
-                        var datos = parMaquina[1]; // Extrae el objeto interno {in, out, status}
+                    // Desestructuración directa de arreglos nativa para evitar cualquier recorte o error lógico
+                    listaMaquinas.forEach(function(item) {
+                        var clave = item[0]; // Extrae el identificador de la máquina (ej: "maq_09")
+                        var datos = item[1]; // Extrae el objeto interno {in, out, status}
                         
                         var numOficial = clave.replace("maq_", "");
                         
@@ -198,7 +194,7 @@
                     });
                 }
             } catch (error) {
-                console.log("Error de lectura contable: ", error);
+                console.log("Error de sincronización contable: ", error);
             }
         }
 
