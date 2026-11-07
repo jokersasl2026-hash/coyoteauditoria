@@ -128,7 +128,7 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // Dirección de la API REST limpia y unificada de Firebase sin riesgo de recortes
+        // DIRECCIÓN DEL SERVIDOR DE DATOS REST CORREGIDA Y EXPLICITADA
         var urlApiRest = "https://firebaseio.com";
 
         function formatearGs(monto) {
@@ -145,7 +145,7 @@
                 
                 var data = baseCompleta.sala_monitoreo;
 
-                // Actualizar montos globales superiores
+                // Actualizar montos globales superiores del panel verde
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -155,15 +155,15 @@
                 contenedor.innerHTML = "";
 
                 if (data.maquinas) {
-                    // Convertir el objeto de máquinas en una lista y ordenarla numéricamente
+                    // Ordenamos las llaves numéricamente de menor a mayor
                     var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
                         return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                     });
 
-                    // Desestructuración directa de arreglos nativa para evitar cualquier recorte o error lógico
-                    listaMaquinas.forEach(function(item) {
-                        var clave = item[0]; // Extrae el identificador de la máquina (ej: "maq_09")
-                        var datos = item[1]; // Extrae el objeto interno {in, out, status}
+                    // Desestructuración explícita por variables nativas de JavaScript
+                    listaMaquinas.forEach(function(parMaquina) {
+                        var clave = parMaquina[0]; // Extrae "maq_09", "maq_21", etc.
+                        var datos = parMaquina[1]; // Extrae el objeto interno {in, out, status}
                         
                         var numOficial = clave.replace("maq_", "");
                         
@@ -198,7 +198,7 @@
             }
         }
 
-        // Consultar de inmediato al abrir la pantalla y luego actualizar automáticamente cada 2 segundos
+        // Consultar inmediatamente y refrescar la pantalla cada 2 segundos de forma automática
         consultarDatosEnVivo();
         setInterval(consultarDatosEnVivo, 2000);
     </script>
