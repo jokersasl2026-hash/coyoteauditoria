@@ -128,12 +128,13 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // TRUCO SEGURO COMPILADO POR ARRAYS (Blindado contra filtros y recortes del chat)
-        var codigosUrl =;
-        var urlApiRest = "";
-        for (var i = 0; i < codigosUrl.length; i++) {
-            urlApiRest += String.fromCharCode(codigosUrl[i]);
-        }
+        // CONSTRUCCIÓN MANUAL MEDIANTE TEXTO COMBINADO (Blindado al 100%)
+        var parte_protocolo = "https://";
+        var parte_proyecto = "coyoteauditoria-default-rtdb";
+        var parte_servidor = "://";
+        var parte_extension = ".json";
+        
+        var urlApiRest = parte_protocolo + parte_proyecto + parte_servidor + parte_extension;
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
@@ -159,14 +160,13 @@
                 contenedor.innerHTML = "";
 
                 if (data.maquinas) {
-                    // Ordenamos las llaves numéricamente de menor a mayor
                     var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
-                        return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
+                        return a.0.localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                     });
 
                     listaMaquinas.forEach(function(item) {
-                        var key = item[0];   // Extrae correctamente la clave ("maq_09")
-                        var maq = item[1];   // Extrae correctamente los datos {in, out, status}
+                        var key = item[0];   // Clave real de la máquina (Posición 0)
+                        var maq = item[1];   // Datos contables internos (Posición 1)
                         var numOficial = key.replace("maq_", "");
                         
                         var pctTexto = "Ganancia: 100.0%";
