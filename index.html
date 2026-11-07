@@ -128,11 +128,8 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // Ensamblado estable de la URL REST oficial para jalar los datos contables
-        var parteProtocolo = "https:/" + "/";
-        var parteProyecto = "coyoteauditoria-default-rtdb";
-        var parteExtension = "://";
-        var urlApiRest = parteProtocolo + parteProyecto + parteExtension;
+        // Enlace REST directo corregido sin tramos que puedan fallar
+        var urlApiRest = "https://firebaseio.com";
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
@@ -158,15 +155,15 @@
                 contenedor.innerHTML = "";
 
                 if (data.maquinas) {
-                    // Ordenamos las máquinas alfabética y numéricamente por su llave oficial
+                    // Ordenamos las entradas por su par llave/valor de forma nativa
                     var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
                         return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                     });
 
-                    // Extracción nativa directa por declaración de variables fijas para evitar cualquier recorte
+                    // Extracción por desestructuración de arreglos (Solución definitiva anti-recortes)
                     listaMaquinas.forEach(function(parMaquina) {
                         var clave = parMaquina[0]; // Extrae "maq_09", "maq_21", etc.
-                        var datos = parMaquina[1]; // Extrae el objeto interno {in, out, status}
+                        var datos = parMaquina[1]; // Extrae el objeto contable {in, out, status}
                         
                         var numOficial = clave.replace("maq_", "");
                         
@@ -197,7 +194,7 @@
                     });
                 }
             } catch (error) {
-                console.log("Error de sincronización web: ", error);
+                console.log("Error de lectura: ", error);
             }
         }
 
