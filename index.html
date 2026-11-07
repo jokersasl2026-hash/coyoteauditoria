@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎰 Monitor Coyote Online</title>
+    
+    <!-- Cargamos las librerías oficiales completas de Firebase desde servidores públicos estables -->
+    <script src="https://cloudflare.com"></script>
+    <script src="https://cloudflare.com"></script>
+
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -128,81 +133,76 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // CONSTRUCCIÓN MANUAL MEDIANTE TEXTO COMBINADO (Blindado al 100%)
-        var parte_protocolo = "https://";
-        var parte_proyecto = "coyoteauditoria-default-rtdb";
-        var parte_servidor = "://";
-        var parte_extension = ".json";
-        
-        var urlApiRest = parte_protocolo + parte_proyecto + parte_servidor + parte_extension;
+        // Tus credenciales reales vinculadas a tu proyecto coyoteauditoria
+        var firebaseConfig = {
+            apiKey: "AIzaSyCB8qNEU0ex8065ZRFMxRF_fUkG2NyWpZ4",
+            authDomain: "://firebaseapp.com",
+            databaseURL: "https://firebaseio.com",
+            projectId: "coyoteauditoria",
+            storageBucket: "://appspot.com"
+        };
+
+        // Inicializar Firebase clásico de forma interna nativa
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
         }
 
-        async function consultarDatosEnVivo() {
-            try {
-                var respuesta = await fetch(urlApiRest);
-                if (!respuesta.ok) return;
-                
-                var baseCompleta = await respuesta.json();
-                if (!baseCompleta || !baseCompleta.sala_monitoreo) return;
-                
-                var data = baseCompleta.sala_monitoreo;
+        // Leer datos contables en tiempo real
+        var salaRef = db.ref('sala_monitoreo');
+        salaRef.on('value', function(snapshot) {
+            var data = snapshot.val();
+            if (!data) return;
 
-                // Actualizar montos globales superiores
-                document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
-                document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
-                document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
-                document.getElementById('txt-reloj').innerText = "Última Sincronización: " + (data.ultima_actualizacion || '--/--/---- --:--:--');
+            // Actualizar montos globales superiores
+            document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
+            document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
+            document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
+            document.getElementById('txt-reloj').innerText = "Última Sincronización: " + (data.ultima_actualizacion || '--/--/---- --:--:--');
 
-                var contenedor = document.getElementById('contenedor-maquinas');
-                contenedor.innerHTML = "";
+            var contenedor = document.getElementById('contenedor-maquinas');
+            contenedor.innerHTML = "";
 
-                if (data.maquinas) {
-                    var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
-                        return a.0.localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
-                    });
+            if (data.maquinas) {
+                // Ordenar las máquinas por número oficial de menor a mayor
+                var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
+                    return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
+                });
 
-                    listaMaquinas.forEach(function(item) {
-                        var key = item[0];   // Clave real de la máquina (Posición 0)
-                        var maq = item[1];   // Datos contables internos (Posición 1)
-                        var numOficial = key.replace("maq_", "");
-                        
-                        var pctTexto = "Ganancia: 100.0%";
-                        var pctColor = "#bdc3c7";
-                        if (maq.in > 0) {
-                            var pct = ((maq.in - maq.out) / maq.in) * 100;
-                            pctTexto = "Ganancia: " + pct.toFixed(1) + "%";
-                            if (pct < 0) pctColor = "#e74c3c";
-                        }
+                listaMaquinas.forEach(function(item) {
+                    var key = item[0];   // Extrae correctamente la clave ("maq_09")
+                    var maq = item[1];   // Extrae correctamente los datos {in, out, status}
+                    var numOficial = key.replace("maq_", "");
+                    
+                    var pctTexto = "Ganancia: 100.0%";
+                    var pctColor = "#bdc3c7";
+                    if (maq.in > 0) {
+                        var pct = ((maq.in - maq.out) / maq.in) * 100;
+                        pctTexto = "Ganancia: " + pct.toFixed(1) + "%";
+                        if (pct < 0) pctColor = "#e74c3c";
+                    }
 
-                        var statusClass = (maq.status === "[ON]") ? "status online" : "status offline";
-                        var statusTexto = (maq.status === "[ON]") ? "ONLINE" : "OFFLINE";
+                    var statusClass = (maq.status === "[ON]") ? "status online" : "status offline";
+                    var statusTexto = (maq.status === "[ON]") ? "ONLINE" : "OFFLINE";
 
-                        var tarjeta = document.createElement('div');
-                        tarjeta.className = "card-maquina";
-                        tarjeta.innerHTML = `
-                            <div class="fila-superior">
-                                <h2>Máq. ${numOficial}</h2>
-                                <span class="${statusClass}">${statusTexto}</span>
-                            </div>
-                            <div class="info-der">
-                                <p class="monto-in">${formatearGs(maq.in)}</p>
-                                <p class="ganancia-pct" style="color: ${pctColor}">${pctTexto}</p>
-                            </div>
-                        `;
-                        contenedor.appendChild(tarjeta);
-                    });
-                }
-            } catch (error) {
-                console.log("Error de sincronización: ", error);
+                    var tarjeta = document.createElement('div');
+                    tarjeta.className = "card-maquina";
+                    tarjeta.innerHTML = `
+                        <div class="fila-superior">
+                            <h2>Máq. ${numOficial}</h2>
+                            <span class="${statusClass}">${statusTexto}</span>
+                        </div>
+                        <div class="info-der">
+                            <p class="monto-in">${formatearGs(maq.in)}</p>
+                            <p class="ganancia-pct" style="color: ${pctColor}">${pctTexto}</p>
+                        </div>
+                    `;
+                    contenedor.appendChild(tarjeta);
+                });
             }
-        }
-
-        // Consultar de inmediato al abrir la pantalla y luego actualizar automáticamente cada 2 segundos
-        consultarDatosEnVivo();
-        setInterval(consultarDatosEnVivo, 2000);
+        });
     </script>
 </body>
 </html>
