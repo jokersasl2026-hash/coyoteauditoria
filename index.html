@@ -3,139 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 Monitor Coyote Online</title>
+    <title>🎰 Totales Coyote Online</title>
     <style>
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
             background-color: #2c3e50;
             color: white;
             margin: 0;
-            padding: 15px;
+            padding: 20px;
             min-height: 100vh;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            justify-content: center;
         }
         
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             background-color: #1a252f;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            gap: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
         .header img {
-            max-height: 60px;
+            max-height: 70px;
             width: auto;
-            object-fit: contain;
-        }
-        .header-text { text-align: left; }
-        .header h1 { margin: 0; font-size: 22px; color: #f1c40f; letter-spacing: 0.5px; }
-        .header p { margin: 2px 0 0 0; color: #bdc3c7; font-size: 13px; }
-        
-        .resumen-global {
-            background-color: #16a085;
-            padding: 12px 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        .card-global { text-align: center; }
-        .card-global h3 { margin: 0; font-size: 12px; text-transform: uppercase; color: #e8f8f5; opacity: 0.9; }
-        .card-global p { margin: 4px 0 0 0; font-size: 22px; font-weight: bold; }
-
-        .grid-maquinas {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            flex-grow: 1;
-        }
-        
-        @media (max-width: 1024px) {
-            .grid-maquinas { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        .card-maquina {
-            background-color: #34495e;
-            border: 2px solid #2c3e50;
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            box-sizing: border-box;
-            min-height: 90px;
-        }
-        
-        .fila-superior {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 8px;
         }
-        .fila-superior h2 { margin: 0; font-size: 16px; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; color: #f1c40f; letter-spacing: 0.5px; }
+        .header p { margin: 4px 0 0 0; color: #bdc3c7; font-size: 14px; }
         
-        .status {
-            display: inline-block;
-            padding: 2px 6px;
-            font-size: 10px;
-            font-weight: bold;
-            border-radius: 4px;
+        /* Contenedor grande de totales globales */
+        .panel-totales {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
         }
-        .status.online { background-color: #2ecc71; color: #145a32; }
-        .status.offline { background-color: #e74c3c; color: #641e16; }
-
-        .info-der { text-align: right; }
-        .monto-in { color: #2ecc71; font-size: 18px; font-weight: bold; margin: 0; }
-        .ganancia-pct { color: #bdc3c7; font-size: 12px; margin: 4px 0 0 0; font-weight: bold; }
+        
+        .card-total {
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+        
+        .card-neto { background-color: #16a085; border: 2px solid #1abc9c; }
+        .card-in { background-color: #27ae60; border: 2px solid #2ecc71; }
+        .card-out { background-color: #2980b9; border: 2px solid #3498db; }
+        
+        .card-total h3 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .card-total p { margin: 8px 0 0 0; font-size: 32px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <img src="logo.png" alt="Logo Coyote" onerror="this.style.display='none';">
-        <div class="header-text">
-            <h1>SISTEMA DE AUDITORÍA CONTABLE WEB</h1>
-            <p>Monitoreo de Sala en Tiempo Real</p>
-            <p id="txt-reloj" style="color: #ecf0f1; font-weight: bold; margin-top: 4px; font-size: 12px;">Conectando a la base de datos...</p>
-        </div>
+        <h1>RECAUDACIÓN GENERAL EN VIVO</h1>
+        <p id="txt-reloj">Conectando al servidor central...</p>
     </div>
 
-    <!-- PANEL GENERAL DE RECAUDACIÓN -->
-    <div class="resumen-global">
-        <div class="card-global">
-            <h3>Balance Neto Global</h3>
+    <!-- PANELES DE TOTALES COMPACTOS -->
+    <div class="panel-totales">
+        <div class="card-total card-neto">
+            <h3>Balance Neto Global (Ganancia)</h3>
             <p id="neto-global">Gs. 0</p>
         </div>
-        <div class="card-global">
-            <h3>Total IN (Entradas)</h3>
+        <div class="card-total card-in">
+            <h3>Total IN (Entradas Totales)</h3>
             <p id="total-in">Gs. 0</p>
         </div>
-        <div class="card-global">
-            <h3>Total OUT (Premios)</h3>
+        <div class="card-total card-out">
+            <h3>Total OUT (Premios Pagados)</h3>
             <p id="total-out">Gs. 0</p>
         </div>
     </div>
 
-    <!-- CONTENEDOR DE LAS 10 MÁQUINAS -->
-    <div class="grid-maquinas" id="contenedor-maquinas"></div>
-
     <script>
-        // DIRECCIÓN DEL SERVIDOR DE DATOS REST CORREGIDA Y EXPLICITADA
-        var urlApiRest = "https://firebaseio.com";
+        // Construcción manual de la URL sin que sufra recortes del chat
+        var protocol = "https://";
+        var project = "coyoteauditoria-default-rtdb";
+        var fileJson = "://";
+        var urlApiRest = protocol + project + fileJson;
 
         function formatearGs(monto) {
             return "Gs. " + Number(monto).toLocaleString('de-DE');
         }
 
-        async function consultarDatosEnVivo() {
+        async function actualizarTotalesSala() {
             try {
                 var respuesta = await fetch(urlApiRest);
                 if (!respuesta.ok) return;
@@ -145,62 +106,19 @@
                 
                 var data = baseCompleta.sala_monitoreo;
 
-                // Actualizar montos globales superiores del panel verde
+                // Inyección directa de las variables fijas en pantalla
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
-                document.getElementById('txt-reloj').innerText = "Última Sincronización: " + (data.ultima_actualizacion || '--/--/---- --:--:--');
-
-                var contenedor = document.getElementById('contenedor-maquinas');
-                contenedor.innerHTML = "";
-
-                if (data.maquinas) {
-                    // Ordenamos las llaves numéricamente de menor a mayor
-                    var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
-                        return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
-                    });
-
-                    // Desestructuración explícita por variables nativas de JavaScript
-                    listaMaquinas.forEach(function(parMaquina) {
-                        var clave = parMaquina[0]; // Extrae "maq_09", "maq_21", etc.
-                        var datos = parMaquina[1]; // Extrae el objeto interno {in, out, status}
-                        
-                        var numOficial = clave.replace("maq_", "");
-                        
-                        var pctTexto = "Ganancia: 100.0%";
-                        var pctColor = "#bdc3c7";
-                        if (datos.in > 0) {
-                            var pct = ((datos.in - datos.out) / datos.in) * 100;
-                            pctTexto = "Ganancia: " + pct.toFixed(1) + "%";
-                            if (pct < 0) pctColor = "#e74c3c";
-                        }
-
-                        var statusClass = (datos.status === "[ON]") ? "status online" : "status offline";
-                        var statusTexto = (datos.status === "[ON]") ? "ONLINE" : "OFFLINE";
-
-                        var tarjeta = document.createElement('div');
-                        tarjeta.className = "card-maquina";
-                        tarjeta.innerHTML = `
-                            <div class="fila-superior">
-                                <h2>Máq. ${numOficial}</h2>
-                                <span class="${statusClass}">${statusTexto}</span>
-                            </div>
-                            <div class="info-der">
-                                <p class="monto-in">${formatearGs(datos.in)}</p>
-                                <p class="ganancia-pct" style="color: ${pctColor}">${pctTexto}</p>
-                            </div>
-                        `;
-                        contenedor.appendChild(tarjeta);
-                    });
-                }
+                document.getElementById('txt-reloj').innerText = "Última Actualización: " + (data.ultima_actualizacion || '--/--/---- --:--:--');
             } catch (error) {
-                console.log("Error de sincronización contable: ", error);
+                console.log("Error de conexión contable: ", error);
             }
         }
 
-        // Consultar inmediatamente y refrescar la pantalla cada 2 segundos de forma automática
-        consultarDatosEnVivo();
-        setInterval(consultarDatosEnVivo, 2000);
+        // Consultar de inmediato al abrir la pantalla y luego actualizar automáticamente cada 2 segundos
+        actualizarTotalesSala();
+        setInterval(actualizarTotalesSala, 2000);
     </script>
 </body>
 </html>
