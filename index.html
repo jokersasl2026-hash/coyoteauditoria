@@ -128,10 +128,10 @@
     <div class="grid-maquinas" id="contenedor-maquinas"></div>
 
     <script>
-        // TRUCO SEGURO ANTI-RECORTES: Ensamblamos la ruta .json directamente
+        // ENSAMBLADO MANUAL DE LA DIRECCIÓN CONTABLE (Inmune a recortes del chat)
         var h1 = "https://";
         var h2 = "coyoteauditoria-default-rtdb";
-        var h3 = "://";
+        var h3 = "://"; // Extensión REST pura de datos de Google
         var urlApiRest = h1 + h2 + h3;
 
         function formatearGs(monto) {
@@ -148,7 +148,7 @@
                 
                 var data = baseCompleta.sala_monitoreo;
 
-                // Actualizar montos superiores globales
+                // Actualizar montos globales superiores
                 document.getElementById('neto-global').innerText = formatearGs(data.neto_global || 0);
                 document.getElementById('total-in').innerText = formatearGs(data.total_in_global || 0);
                 document.getElementById('total-out').innerText = formatearGs(data.total_out_global || 0);
@@ -158,14 +158,14 @@
                 contenedor.innerHTML = "";
 
                 if (data.maquinas) {
-                    // Convertir en lista y ordenar las máquinas numéricamente por su nombre oficial
+                    // Ordenamos las llaves numéricamente de menor a mayor
                     var listaMaquinas = Object.entries(data.maquinas).sort(function(a, b) {
-                        return a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'});
+                        return a[0].localeCompare(b[0], undefined, {numeric: true, sensitivity: 'base'});
                     });
 
                     listaMaquinas.forEach(function(item) {
-                        var key = item[0];   // Clave real de la máquina (ej: "maq_09")
-                        var maq = item[1];   // Datos reales internos {in, out, status}
+                        var key = item[0];   // Tomamos el identificador ("maq_09") de la posición 0
+                        var maq = item[1];   // Tomamos los datos reales {in, out, status} de la posición 1
                         var numOficial = key.replace("maq_", "");
                         
                         var pctTexto = "Ganancia: 100.0%";
